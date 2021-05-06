@@ -5,6 +5,7 @@ t.test('App', async t => {
   const app = mojo();
 
   app.websocket('/echo').to(ctx => {
+    const greeting = ctx.req.get('X-Greeting');
     ctx.on('connection', ws => {
       ws.on('message', message => {
         if (typeof message !== 'string') {
@@ -13,6 +14,9 @@ t.test('App', async t => {
           ws.send(`echo: ${message}`);
         }
       });
+      if (greeting) {
+        ws.send(`greeting: ${greeting}`);
+      }
     });
   });
 
@@ -54,6 +58,16 @@ t.test('App', async t => {
     t.equal(await client.messageOk(), 'echo: and one more time');
     await client.finishOk(4000);
     await client.finishedOk(4000);
+  });
+
+  await t.test('Custom headers and protocols', async t => {
+    const headers = {'X-Greeting': 'hello mojo'};
+    await client.websocketOk('/echo', {headers, protocols: ['foo', 'bar', 'baz']});
+    client.headerIs('Upgrade', 'websocket').headerIs('Connection', 'Upgrade').headerIs('Sec-WebSocket-Protocol', 'foo');
+    t.equal(await client.messageOk(), 'greeting: hello mojo');
+    await client.sendOk('hello');
+    t.equal(await client.messageOk(), 'echo: hello');
+    await client.finishOk();
   });
 
   await t.test('Bytes', async t => {
