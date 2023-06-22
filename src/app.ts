@@ -256,25 +256,15 @@ export class App {
 
     // Nested helper
     if (nestedNames.length === 2) {
-      const [getterName, methodName] = nestedNames;
-      const nested = (this._nestedHelpers[getterName] ??= {});
-      nested[methodName] = fn;
-      const fnEntries = Object.entries<MojoAction>(nested);
-
-      return this.decorateContext(getterName, {
-        get: function (this: MojoContext) {
-          const cache = this._nestedHelpersCache;
-          if (cache[getterName] === undefined) {
-            const nestedHelpers = (cache[getterName] ??= {});
-            for (const [key, fn] of fnEntries) {
-              nestedHelpers[key] = (...args: any[]) => fn(this, ...args);
-            }
-          }
-
-          return cache[getterName];
-        },
-        configurable: true
-      });
+      const [baseName, methodName] = nestedNames;
+      // TODO: refactor this! (DNY)
+      const proto: MojoContext = Context.prototype as MojoContext;
+      if (Object.getOwnPropertyDescriptor(proto, name) != null) {
+        throw new Error(`The name "${baseName}" is already used in the prototype chain`);
+      }
+      // just store function into app object
+      (this._nestedHelpers[baseName] ??= {})[methodName] = fn;
+      return this;
     }
 
     // Invalid helper name
