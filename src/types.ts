@@ -90,6 +90,8 @@ export type PlaceholderType = RegExp | string | string[];
 export type TagAttrs = Record<string, string | boolean | Record<string, string>>;
 export type TagContent = string | SafeString | Promise<string | SafeString> | (() => Promise<string | SafeString>);
 
+export type NestedHelperMethods = Record<string, () => MojoAction>;
+export type ScopedNestedHelperMethods = NestedHelperMethods & {_ctx: MojoContext};
 export interface BackendInfo {
   name: string;
   [key: string]: any;

@@ -6,6 +6,8 @@ import type {
   MojoAction,
   MojoContext,
   MojoModels,
+  NestedHelperMethods,
+  ScopedNestedHelperMethods,
   RouteArguments,
   BackendInfo,
   ServerOptions,
@@ -185,8 +187,7 @@ export class App {
   validator = new Validator();
 
   _contextClass: any = class extends ContextWrapper {};
-  _nestedHelpers: Record<string, Record<string, MojoAction>> = {};
-  _nestedHelpersCache = new WeakMap();
+  _nestedHelpers: Record<string, NestedHelperMethods> = {};
 
   constructor(options: AppOptions = {}) {
     this.config = options.config ?? {};
@@ -257,26 +258,25 @@ export class App {
     // Nested helper
     if (nestedNames.length === 2) {
       const [getterName, methodName] = nestedNames;
-      const nested = (this._nestedHelpers[getterName] ??= {});
-      nested[methodName] = fn;
-
-      const cache = this._nestedHelpersCache;
-      return this.decorateContext(getterName, {
-        get: function (this: MojoContext) {
-          let helpers = cache.get(this);
-
-          if (helpers === undefined) {
-            helpers = {};
-            for (const [key, fn] of Object.entries(nested)) {
-              helpers[key] = (...args: any[]) => fn(this, ...args);
-            }
-            cache.set(this, helpers);
-          }
-
-          return helpers;
-        },
-        configurable: true
-      });
+      if (this._nestedHelpers[getterName] === undefined) {
+        this._nestedHelpers[getterName] = {};
+        this.decorateContext(getterName, {
+          get: function (this: MojoContext) {
+            return (this._nestedHelpersCache[getterName] ??= {
+              // next line replaces ...this.app._nestedHelpers[getterName]
+              // using inheritance instead of deconstruction should be more efficient
+              // both in cache memory usage and object construction time
+              __proto__: this.app._nestedHelpers[getterName],
+              _ctx: this
+            } as unknown as ScopedNestedHelperMethods);
+          },
+          configurable: true
+        });
+      }
+      this._nestedHelpers[getterName][methodName] = function (...args: any[]) {
+        return fn((this as ScopedNestedHelperMethods)._ctx, ...args);
+      };
+      return this;
     }
 
     // Invalid helper name
