@@ -367,6 +367,27 @@ const tagHelperPlugin = `
 <{formBlock}>
   Form
 <{/formBlock}>
+<{formBlock2}>
+
+%#= select_field a => ['b', c(c => ['<d', [ E => 'e'], 'f']), 'g']
+%= await tags.selectField ("a", ["b", {c: ["<d",  {E: "e"}, "f"]}, "g"])
+
+%#= select_field foo => [qw(bar baz)], multiple => 'multiple'
+%= await tags.selectField ("foo": [qw(bar baz)], multiple => 'multiple')
+
+%#= select_field bar => [['D' => 'd', disabled => 'disabled'], 'baz']
+%= await tags.selectField ("bar": [['D' => 'd', disabled => 'disabled'], 'baz'])
+
+%#= select_field yada => [c(test => [qw(a b)], class => 'x')];
+%= await tags.selectField ("yada": [c(test => [qw(a b)], class => 'x')];)
+
+%#= select_field h => [['I' => 'i', selected => undef], ['J' => 'j']]
+%= await tags.selectField ("h": [['I' => 'i', selected => undef], ['J' => 'j']])
+
+%#= submit_button
+%= await tags.submitButton()
+
+<{/formBlock2}>
 Route: <%= ctx.currentRoute() %>
 Favicon: <%= await ctx.tags.favicon() %>
 Favicon2: <%= await tags.favicon('/favicon.ico') %>
