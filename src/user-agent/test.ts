@@ -15,7 +15,7 @@ import {on} from 'node:events';
 import {MockUserAgent} from './mock.js';
 import DOM from '@mojojs/dom';
 import {jsonPointer} from '@mojojs/util';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import StackUtils from 'stack-utils';
 
 type SkipFunction = (...args: any[]) => any;

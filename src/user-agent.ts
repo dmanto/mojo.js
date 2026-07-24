@@ -8,7 +8,7 @@ import {HTTPSTransport} from './user-agent/transport/https.js';
 import {WSTransport} from './user-agent/transport/ws.js';
 import {AsyncHooks} from '@mojojs/util';
 import FormData from 'form-data';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
 interface Upload {
   content: string;
