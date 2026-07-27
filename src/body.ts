@@ -6,7 +6,7 @@ import {Params} from './body/params.js';
 import {Headers} from './headers.js';
 import DOM from '@mojojs/dom';
 import busboy from 'busboy';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
 interface FileUpload {
   fieldname: string;

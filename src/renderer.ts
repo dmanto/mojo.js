@@ -2,7 +2,7 @@ import type {MojoContext, MojoRenderOptions} from './types.js';
 import {promisify} from 'node:util';
 import {gzip} from 'node:zlib';
 import Path from '@mojojs/path';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
 interface EngineResult {
   format: string;
